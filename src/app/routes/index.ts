@@ -1,15 +1,14 @@
 import { Router } from "express";
-
+import { BikeRouter } from "../modules/bike/bike.routes";
 
 const router = Router();
 
 // Application routes
 const moduleRoutes = [
   {
-    path: "/",
-    module: ,
+    path: "/bikes",
+    module: BikeRouter,
   },
-  
 ];
 
 moduleRoutes.forEach((route) => {
