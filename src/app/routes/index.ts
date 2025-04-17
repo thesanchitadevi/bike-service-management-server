@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { BikeRouter } from "../modules/bike/bike.routes";
+import { CustomerRouter } from "../modules/customer/customer.routes";
 
 const router = Router();
 
 // Application routes
 const moduleRoutes = [
   {
-    path: "/bikes",
-    module: BikeRouter,
+    path: "/customers",
+    module: CustomerRouter,
   },
 ];
 
