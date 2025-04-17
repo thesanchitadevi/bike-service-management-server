@@ -1,33 +1,67 @@
 import { Prisma } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { HttpStatus } from "http-status-ts";
+import { AppError } from "../errors/AppError";
 
 const globalErrorHandler = (
-  err: any,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  // Default values
   let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-  let success = false;
-  let message = err.message || "Something went wrong!";
-  let error = err;
+  let message = "Something went wrong!";
+  let stack: string | undefined;
+  const meta = {};
 
-  if (err instanceof Prisma.PrismaClientValidationError) {
+  // Handle known error types
+  if (err instanceof AppError) {
+    // Handle custom application errors
+    statusCode = err.statusCode;
+    message = err.message;
+    stack = process.env.NODE_ENV === "development" ? err.stack : undefined;
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
+    // Prisma validation errors
+    statusCode = HttpStatus.BAD_REQUEST;
     message = "Validation Error";
-    error = err.message;
+    stack = err.message;
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if (err.code === "P2002") {
-      message = "Duplicate Key error";
-      error = err.meta;
+    // Prisma operational errors
+    switch (err.code) {
+      case "P2002":
+        statusCode = HttpStatus.CONFLICT;
+        message = "Duplicate entry violation";
+        break;
+      case "P2025":
+        statusCode = HttpStatus.NOT_FOUND;
+        message = "Record not found";
+        break;
+      case "P2003":
+        statusCode = HttpStatus.BAD_REQUEST;
+        message = "Foreign key constraint failed";
+        break;
+      default:
+        statusCode = HttpStatus.BAD_REQUEST;
+        message = "Database operation failed";
     }
+    stack = err.message;
+    Object.assign(meta, err.meta);
+  } else if (err instanceof Error) {
+    // Generic JavaScript errors
+    message = err.message;
+    stack = err.stack;
   }
 
-  res.status(statusCode).json({
-    success,
+  // Response structure
+  const response = {
+    success: false,
+    status: statusCode,
     message,
-    error,
-  });
+    ...(process.env.NODE_ENV === "development" && { stack }),
+  };
+
+  res.status(statusCode).json(response);
 };
 
 export default globalErrorHandler;

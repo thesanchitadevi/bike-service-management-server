@@ -16,13 +16,13 @@ const createServiceIntoDB = async (data: IService) => {
   const service = await prisma.serviceRecord.create({
     data: {
       ...data,
-      status: data.status.toUpperCase() as ServiceStatus,
+      status: data.status.toUpperCase().replace("-", "_") as ServiceStatus,
     },
   });
 
   return {
     ...service,
-    status: service.status.toLowerCase(),
+    status: service.status.toLowerCase().replace("_", "-"),
   };
 };
 
@@ -30,7 +30,7 @@ const getAllServicesFromDB = async () => {
   const services = await prisma.serviceRecord.findMany({});
   return services.map((service) => ({
     ...service,
-    status: service.status.toLowerCase(),
+    status: service.status.toLowerCase().replace("_", "-"),
   }));
 };
 
@@ -45,7 +45,7 @@ const getServiceByIdFromDB = async (id: string) => {
 
   return {
     ...service,
-    status: service.status.toLowerCase(),
+    status: service.status.toLowerCase().replace("_", "-"),
   };
 };
 
@@ -78,8 +78,40 @@ const markServiceComplete = async (id: string, completionDate?: Date) => {
     })
     .then((service) => ({
       ...service,
-      status: service.status.toLowerCase() as "done",
+      status: service.status.toLowerCase().replace("_", "-") as "done",
     }));
+};
+
+const getOverdueServices = async () => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  console.log("Seven days ago: ", sevenDaysAgo);
+
+  const services = await prisma.serviceRecord.findMany({
+    where: {
+      AND: [
+        {
+          status: {
+            in: [ServiceStatus.PENDING, ServiceStatus.IN_PROGRESS],
+          },
+        },
+      ],
+    },
+  });
+
+  console.log("Found services:", services);
+
+  if (services.length === 0) {
+    throw new AppError(
+      HttpStatus.NOT_FOUND,
+      "No overdue or pending services found"
+    );
+  }
+
+  return services.map((service) => ({
+    ...service,
+    status: service.status.toLowerCase().replace("_", "-"),
+  }));
 };
 
 export const ServiceRecordService = {
@@ -88,4 +120,5 @@ export const ServiceRecordService = {
   getServiceByIdFromDB,
   deleteServiceFromDB,
   markServiceComplete,
+  getOverdueServices,
 };
