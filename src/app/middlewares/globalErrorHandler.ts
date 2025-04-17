@@ -20,7 +20,8 @@ const globalErrorHandler = (
     // Handle custom application errors
     statusCode = err.statusCode;
     message = err.message;
-    stack = process.env.NODE_ENV === "development" ? err.stack : undefined;
+    stack =
+      process.env.NODE_ENV === "development" ? new Error().stack : undefined;
   } else if (err instanceof Prisma.PrismaClientValidationError) {
     // Prisma validation errors
     statusCode = HttpStatus.BAD_REQUEST;

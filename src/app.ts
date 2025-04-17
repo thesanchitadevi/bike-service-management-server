@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import router from "./app/routes";
 import { HttpStatus } from "http-status-ts";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
 
 const app: Application = express();
 app.use(cors());
@@ -26,15 +27,6 @@ app.use("/api", router);
 app.use(globalErrorHandler);
 
 // handle not found route
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(HttpStatus.NOT_FOUND).json({
-    success: false,
-    message: "API NOT FOUND!",
-    error: {
-      path: req.originalUrl,
-      message: "Your requested path is not found!",
-    },
-  });
-});
+app.use(notFound);
 
 export default app;
