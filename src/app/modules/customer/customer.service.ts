@@ -3,7 +3,7 @@ import prisma from "../../../shared/prisma";
 import { AppError } from "../../errors/AppError";
 import { ICustomer } from "./customer.interface";
 
-const createCustomer = async (data: ICustomer) => {
+const createCustomerIntoDB = async (data: ICustomer) => {
   const existingCustomer = await prisma.customer.findUnique({
     where: { email: data.email },
   });
@@ -17,12 +17,12 @@ const createCustomer = async (data: ICustomer) => {
   return newCustomer;
 };
 
-const getAllCustomers = async () => {
+const getAllCustomersFromDB = async () => {
   const customers = await prisma.customer.findMany();
   return customers;
 };
 
-const getCustomerById = async (id: string) => {
+const getCustomerByIdFromDB = async (id: string) => {
   const customer = await prisma.customer.findUniqueOrThrow({
     where: { customerId: id },
   });
@@ -30,7 +30,7 @@ const getCustomerById = async (id: string) => {
   return customer;
 };
 
-const updateCustomer = async (id: string, data: Partial<ICustomer>) => {
+const updateCustomerIntoDB = async (id: string, data: Partial<ICustomer>) => {
   await prisma.customer.findUniqueOrThrow({
     where: { customerId: id },
   });
@@ -45,7 +45,7 @@ const updateCustomer = async (id: string, data: Partial<ICustomer>) => {
   return updatedCustomer;
 };
 
-const deleteCustomer = async (id: string) => {
+const deleteCustomerFromDB = async (id: string) => {
   await prisma.customer.findUniqueOrThrow({
     where: { customerId: id },
   });
@@ -55,9 +55,9 @@ const deleteCustomer = async (id: string) => {
 };
 
 export const CustomerService = {
-  createCustomer,
-  getAllCustomers,
-  getCustomerById,
-  updateCustomer,
-  deleteCustomer,
+  createCustomerIntoDB,
+  getAllCustomersFromDB,
+  getCustomerByIdFromDB,
+  updateCustomerIntoDB,
+  deleteCustomerFromDB,
 };

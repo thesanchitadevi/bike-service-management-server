@@ -5,7 +5,7 @@ import sendResponse from "../../../shared/sendResponse";
 import { HttpStatus } from "http-status-ts";
 
 const createCustomer = catchAsync(async (req: Request, res: Response) => {
-  const customer = await CustomerService.createCustomer(req.body);
+  const customer = await CustomerService.createCustomerIntoDB(req.body);
 
   sendResponse(res, {
     success: true,
@@ -16,7 +16,7 @@ const createCustomer = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllCustomers = catchAsync(async (req: Request, res: Response) => {
-  const customers = await CustomerService.getAllCustomers();
+  const customers = await CustomerService.getAllCustomersFromDB();
 
   sendResponse(res, {
     success: true,
@@ -28,7 +28,7 @@ const getAllCustomers = catchAsync(async (req: Request, res: Response) => {
 
 const getCustomerById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const customer = await CustomerService.getCustomerById(id);
+  const customer = await CustomerService.getCustomerByIdFromDB(id);
 
   sendResponse(res, {
     success: true,
@@ -40,7 +40,7 @@ const getCustomerById = catchAsync(async (req: Request, res: Response) => {
 
 const updateCustomer = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const customer = await CustomerService.updateCustomer(id, req.body);
+  const customer = await CustomerService.updateCustomerIntoDB(id, req.body);
 
   sendResponse(res, {
     success: true,
@@ -52,7 +52,7 @@ const updateCustomer = catchAsync(async (req: Request, res: Response) => {
 
 const deleteCustomer = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  await CustomerService.deleteCustomer(id);
+  await CustomerService.deleteCustomerFromDB(id);
 
   sendResponse(res, {
     success: true,
