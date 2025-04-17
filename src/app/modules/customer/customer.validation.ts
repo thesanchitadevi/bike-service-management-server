@@ -23,7 +23,7 @@ const updateValidation = z.object({
   phone: phoneValidation.optional(),
 });
 
-export const CustomerValidationSchema = {
+export const CustomerValidationSchemas = {
   createValidation,
   updateValidation,
 };
