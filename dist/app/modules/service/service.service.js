@@ -70,7 +70,6 @@ const markServiceComplete = (id, completionDate) => __awaiter(void 0, void 0, vo
 const getOverdueServices = () => __awaiter(void 0, void 0, void 0, function* () {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    console.log("Seven days ago: ", sevenDaysAgo);
     const services = yield prisma_1.default.serviceRecord.findMany({
         where: {
             AND: [
@@ -79,10 +78,14 @@ const getOverdueServices = () => __awaiter(void 0, void 0, void 0, function* () 
                         in: [client_1.ServiceStatus.PENDING, client_1.ServiceStatus.IN_PROGRESS],
                     },
                 },
+                {
+                    serviceDate: {
+                        lte: sevenDaysAgo,
+                    },
+                },
             ],
         },
     });
-    console.log("Found services:", services);
     if (services.length === 0) {
         throw new AppError_1.AppError(http_status_ts_1.HttpStatus.NOT_FOUND, "No overdue or pending services found");
     }
