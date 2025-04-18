@@ -85,7 +85,6 @@ const markServiceComplete = async (id: string, completionDate?: Date) => {
 const getOverdueServices = async () => {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  console.log("Seven days ago: ", sevenDaysAgo);
 
   const services = await prisma.serviceRecord.findMany({
     where: {
@@ -95,11 +94,14 @@ const getOverdueServices = async () => {
             in: [ServiceStatus.PENDING, ServiceStatus.IN_PROGRESS],
           },
         },
+        {
+          serviceDate: {
+            lte: sevenDaysAgo,
+          },
+        },
       ],
     },
   });
-
-  console.log("Found services:", services);
 
   if (services.length === 0) {
     throw new AppError(
